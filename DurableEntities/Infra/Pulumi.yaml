@@ -1,0 +1,3 @@
+name: DurableEntities
+runtime: dotnet
+description: Azure infrastructure for Durable Entities
