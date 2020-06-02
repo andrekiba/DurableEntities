@@ -40,6 +40,35 @@ namespace Infra
             
             #endregion
             
+            #region Func Blobs
+            
+            var container = new Container("zips", new ContainerArgs
+            {
+                StorageAccountName = storageAccount.Name,
+                ContainerAccessType = "private"
+            });
+            
+            var lightsBlob = new Blob("lightszip", new BlobArgs
+            {
+                StorageAccountName = storageAccount.Name,
+                StorageContainerName = container.Name,
+                Type = "Block",
+                Source = new FileArchive("../Lights/bin/Debug/netcoreapp3.1/publish")
+            });
+            var lightsBlobUrl = SharedAccessSignature.SignedBlobReadUrl(lightsBlob, storageAccount);
+            
+            var cacheBlob = new Blob("cachezip", new BlobArgs
+            {
+                StorageAccountName = storageAccount.Name,
+                StorageContainerName = container.Name,
+                Type = "Block",
+                Source = new FileArchive("../Cache/bin/Debug/netcoreapp3.1/publish")
+            });
+            var cacheBlobUrl = SharedAccessSignature.SignedBlobReadUrl(cacheBlob, storageAccount);
+            
+            
+            #endregion 
+            
             #region AppService Plan
             
             var planName = $"{projectName}-{stackName}-plan";
@@ -67,11 +96,15 @@ namespace Infra
                 AppServicePlanId = appServicePlan.Id,
                 AppSettings =
                 {
-                    {"runtime", "dotnet"}
+                    {"runtime", "dotnet"},
+                    {"WEBSITE_RUN_FROM_PACKAGE", lightsBlobUrl}
                 },
-                StorageConnectionString = storageAccount.PrimaryConnectionString,
+                StorageAccountAccessKey = storageAccount.PrimaryAccessKey,
+                StorageAccountName = storageAccount.Name,
                 Version = "~3"
             });
+            
+            LightsFunc = lightsFunc.DefaultHostname;
 
             #endregion
             
@@ -85,16 +118,21 @@ namespace Infra
                 AppServicePlanId = appServicePlan.Id,
                 AppSettings =
                 {
-                    {"runtime", "dotnet"}
+                    {"runtime", "dotnet"},
+                    {"WEBSITE_RUN_FROM_PACKAGE", cacheBlobUrl}
                 },
-                StorageConnectionString = storageAccount.PrimaryConnectionString,
+                StorageAccountAccessKey = storageAccount.PrimaryAccessKey,
+                StorageAccountName = storageAccount.Name,
                 Version = "~3"
             });
 
+            CacheFunc = cacheFunc.DefaultHostname;
+
             #endregion
         }
-
-        [Output]
-        public Output<string> StorageConnectionString { get; set; }
+        
+        [Output] public Output<string> StorageConnectionString { get; set; }
+        [Output] public Output<string> CacheFunc { get; set; }
+        [Output] public Output<string> LightsFunc { get; set; }
     }
 }
