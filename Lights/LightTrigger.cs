@@ -42,7 +42,7 @@ namespace Lights
                     //I'm changing the snapshot not the entity!!
                     //https://github.com/Azure/azure-functions-durable-extension/issues/960
                     var light = esr.EntityState;
-                    light.Off();
+                    await light.Off();
                 }
 
                 return new AcceptedResult();

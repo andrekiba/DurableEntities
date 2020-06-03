@@ -37,25 +37,24 @@ namespace Lights
 						switch (lightRequest.LightAction)
 						{
 							case LightAction.Off:
+								//we can't use Signal here because the entity is locked!!
+								//inside a critical section we can:
+								//call entities that they are locked
+								//signal entities that they are NOT locked
+								//context.SignalEntity(lightId, "Off");
+								//await lightProxy.Off();
 								await context.CallEntityAsync(lightId, "Off");
 								break;
-							//we can't use Signal here because the entity is locked!!
-							//inside a critical section we can:
-							//call entities that they are locked
-							//signal entities that they are NOT locked
-
-							//context.SignalEntity(lightId, "Off");
-							//lightProxy.Off();
 							case LightAction.On:
 								await context.CallEntityAsync(lightId, "On");
-								//lightProxy.On();
+								//await lightProxy.On();
 								break;
 							case LightAction.Color:
 								var currentState = await context.CallEntityAsync<LightState>(lightId, "Get");
 								if (currentState == LightState.Off)
 									await context.CallEntityAsync(lightId, "On");
 								await context.CallEntityAsync(lightId, "Color", lightRequest.HexColor);
-								//lightProxy.Color(lightRequest.HexColor);
+								//await lightProxy.Color(lightRequest.HexColor);
 								break;
 							default:
 								throw new ArgumentOutOfRangeException();

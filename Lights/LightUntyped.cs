@@ -4,6 +4,8 @@ using Lights.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Lights
 {
@@ -17,9 +19,11 @@ namespace Lights
 			try
 			{
 				if (!ctx.HasState)
-					ctx.SetState(new { State = LightState.Off, HexColor = "#eeeeee"});
+					//ctx.SetState(new { State = LightState.Off, HexColor = "#eeeeee"});
+					ctx.SetState(new Props{ State = LightState.Off, HexColor = "#eeeeee"});
 				
-				var currentState = ctx.GetState<dynamic>();
+				//var currentState = ctx.GetState<dynamic>();
+				var currentState = ctx.GetState<Props>();
 
 				switch (ctx.OperationName)
 				{
@@ -50,5 +54,12 @@ namespace Lights
 
 			return Task.CompletedTask;
 		}
+	}
+
+	internal class Props
+	{
+		[JsonConverter(typeof(StringEnumConverter))]
+		public LightState State { get; set; }
+		public string HexColor { get; set; }
 	}
 }

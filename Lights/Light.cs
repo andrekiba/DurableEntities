@@ -10,11 +10,11 @@ namespace Lights
 {
     public interface ILight
     {
-        void On();
-        void Off();
+        Task On();
+        Task Off();
         Task<LightState> Get();
-        void Color(string hexColor);
-        void End();
+        Task Color(string hexColor);
+        Task End();
     }
 
     [JsonObject(MemberSerialization.OptIn)]
@@ -38,11 +38,30 @@ namespace Lights
 
         #region Methods
 
-        public void On() => State = LightState.On;
-        public void Off() => State = LightState.Off;
+        public Task On()
+        {
+            State = LightState.On;
+            return Task.CompletedTask;
+        }
+
+        public Task Off()
+        {
+            State = LightState.Off;
+            return Task.CompletedTask;
+        }
+
         public Task<LightState> Get() => Task.FromResult(State);
-        public void Color(string hexColor) => HexColor = hexColor;
-        public void End() => Entity.Current.DeleteState();
+        public Task Color(string hexColor)
+        {
+            HexColor = hexColor;
+            return Task.CompletedTask;
+        }
+
+        public Task End()
+        {
+            Entity.Current.DeleteState();
+            return Task.CompletedTask;
+        }
 
         #endregion
 
