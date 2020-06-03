@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Microsoft.AspNetCore.Http;
@@ -32,7 +33,7 @@ namespace Cache
 				var data = new byte[10];
 				new Random().NextBytes(data);
 
-				await client.SignalEntityAsync<ICache<byte[]>>(cacheId, proxy => proxy.Set(data));
+				await client.SignalEntityAsync<ICache<byte[]>>(cacheId, async proxy => await proxy.Set(data));
 				//await client.SignalEntityAsync(cacheId, "Set", data);
 
 				var orchestratorId = await client.StartNewAsync(nameof(CacheOrchestrator), $"cache{userId}orchestrator", cacheId);

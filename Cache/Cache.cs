@@ -8,9 +8,9 @@ namespace Cache
 {
 	public interface ICache<T>
 	{
-		void Set(T value);
+		Task Set(T value);
 		Task<T> Get();
-		void Clear();
+		Task Clear();
 	}
 
 	[JsonObject(MemberSerialization.OptIn)]
@@ -19,11 +19,19 @@ namespace Cache
 		[JsonProperty]
 		public T Value { get; private set; }
 
-		public void Set(T value) => Value = value;
+		public Task Set(T value)
+		{
+			Value = value;
+			return Task.CompletedTask;
+		}
 
 		public Task<T> Get() => Task.FromResult(Value);
 
-		public void Clear() => Entity.Current.DeleteState();
+		public Task Clear()
+		{
+			Entity.Current.DeleteState();
+			return Task.CompletedTask;
+		}
 	}
 
 	public class ByteCache : Cache<byte[]>
